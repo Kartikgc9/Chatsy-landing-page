@@ -5,24 +5,12 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Bell, Smartphone, Zap, MessageSquare, Sparkles, X, Mail } from "lucide-react"
+import { ArrowRight, Bell, Smartphone, Zap, MessageSquare, Sparkles } from "lucide-react"
 import { useState } from "react"
 
 export default function Home() {
-  const [showWaitlistModal, setShowWaitlistModal] = useState(false)
-  const [email, setEmail] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (email) {
-      setIsSubmitted(true)
-      setTimeout(() => {
-        setShowWaitlistModal(false)
-        setIsSubmitted(false)
-        setEmail("")
-      }, 2000)
-    }
+  const handleJoinDiscord = () => {
+    window.open('https://discord.gg/KRrNBHWc', '_blank')
   }
 
   return (
@@ -84,10 +72,10 @@ export default function Home() {
             <Button
               size="lg"
               className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90"
-              onClick={() => setShowWaitlistModal(true)}
+              onClick={handleJoinDiscord}
             >
-              <Bell className="mr-2 h-5 w-5" />
-              Get Notified When Available
+              <MessageSquare className="mr-2 h-5 w-5" />
+              Join Discord Community
             </Button>
             <Button
               size="lg"
@@ -163,24 +151,23 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           <Card className="glass-strong p-12 md:p-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">
-              Be the first to experience
+              Join our community and
               <br />
               <span className="text-gradient" style={{ color: "oklch(0.75 0.25 41.85)" }}>
-                the future of messaging.
+                shape the future of messaging.
               </span>
             </h2>
             <p className="text-xl text-muted-foreground mb-8 text-balance">
-              Join our waitlist to get early access when Chatsy launches. Be among the first to transform your
-              conversations with AI.
+              Join our Discord community to connect with other users and stay updated on Chatsy's development.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
                 className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() => setShowWaitlistModal(true)}
+                onClick={handleJoinDiscord}
               >
-                <Bell className="mr-2 h-5 w-5" />
-                Join Waitlist
+                <MessageSquare className="mr-2 h-5 w-5" />
+                Join Discord Community
               </Button>
               <Button
                 size="lg"
@@ -194,75 +181,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Waitlist Modal */}
-      {showWaitlistModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowWaitlistModal(false)} />
 
-          {/* Modal */}
-          <Card className="relative glass-strong p-8 w-full max-w-md mx-auto">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowWaitlistModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-background/20 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            {!isSubmitted ? (
-              <>
-                <div className="text-center mb-6">
-                  <div className="w-16 h-16 rounded-full glass mx-auto mb-4 flex items-center justify-center">
-                    <Bell className="h-8 w-8 text-primary" />
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">Join the Waitlist</h3>
-                  <p className="text-muted-foreground">
-                    Be the first to know when Chatsy launches and get exclusive early access.
-                  </p>
-                </div>
-
-                <form onSubmit={handleWaitlistSubmit} className="space-y-4">
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <input
-                      type="email"
-                      placeholder="Enter your email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-12 pr-4 py-3 rounded-xl glass border border-border/20 bg-background/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="submit"
-                    className="w-full py-3 bg-primary text-primary-foreground hover:bg-primary/90"
-                    disabled={!email}
-                  >
-                    <Bell className="mr-2 h-5 w-5" />
-                    Join Waitlist
-                  </Button>
-                </form>
-
-                <p className="text-xs text-muted-foreground text-center mt-4">
-                  We'll only send you updates about Chatsy. No spam, ever.
-                </p>
-              </>
-            ) : (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-green-500/20 mx-auto mb-4 flex items-center justify-center">
-                  <Sparkles className="h-8 w-8 text-green-400" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2">You're on the list!</h3>
-                <p className="text-muted-foreground">
-                  Thanks for joining! We'll notify you as soon as Chatsy is ready.
-                </p>
-              </div>
-            )}
-          </Card>
-        </div>
-      )}
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border/20">
