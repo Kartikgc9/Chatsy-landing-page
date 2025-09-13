@@ -5,12 +5,52 @@ import type React from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Bell, Smartphone, Zap, MessageSquare, Sparkles } from "lucide-react"
+import { ArrowRight, Bell, Smartphone, Zap, MessageSquare, Sparkles, X, Mail } from "lucide-react"
 import { useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 export default function Home() {
+  const [showWaitlistModal, setShowWaitlistModal] = useState(false)
+  const [email, setEmail] = useState("")
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
   const handleJoinDiscord = () => {
     window.open('https://discord.gg/KRrNBHWc', '_blank')
+  }
+
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) return
+
+    setIsLoading(true)
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .insert([
+          {
+            email: email,
+            created_at: new Date().toISOString(),
+          }
+        ])
+
+      if (error) {
+        console.error('Error adding to waitlist:', error)
+        alert('Something went wrong. Please try again.')
+      } else {
+        setIsSubmitted(true)
+        setTimeout(() => {
+          setShowWaitlistModal(false)
+          setIsSubmitted(false)
+          setEmail("")
+        }, 2000)
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Something went wrong. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -81,9 +121,10 @@ export default function Home() {
               size="lg"
               variant="outline"
               className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
+              onClick={() => setShowWaitlistModal(true)}
             >
-              <Smartphone className="mr-2 h-5 w-5" />
-              Learn More
+              <Bell className="mr-2 h-5 w-5" />
+              Join Waitlist
             </Button>
           </div>
         </div>
@@ -173,8 +214,10 @@ export default function Home() {
                 size="lg"
                 variant="outline"
                 className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
+                onClick={() => setShowWaitlistModal(true)}
               >
-                Learn More
+                <Bell className="mr-2 h-5 w-5" />
+                Join Waitlist
               </Button>
             </div>
           </Card>
@@ -182,6 +225,86 @@ export default function Home() {
       </section>
 
 
+
+      {/* Waitlist Modal */}
+      {showWaitlistModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowWaitlistModal(false)} />
+
+          {/* Modal */}
+          <Card className="relative glass-strong p-8 w-full max-w-md mx-auto">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowWaitlistModal(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-background/20 transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {!isSubmitted ? (
+              <>
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 rounded-full glass mx-auto mb-4 flex items-center justify-center">
+                    <Bell className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2">Join the Waitlist</h3>
+                  <p className="text-muted-foreground">
+                    Be the first to know when Chatsy launches and get exclusive early access.
+                  </p>
+                </div>
+
+                <form onSubmit={handleWaitlistSubmit} className="space-y-4">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <input
+                      type="email"
+                      placeholder="Enter your email address"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-3 rounded-xl glass border border-border/20 bg-background/10 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full py-3 bg-primary text-primary-foreground hover:bg-primary/90"
+                    disabled={!email || isLoading}
+                  >
+                    {isLoading ? (
+                      <>
+                        <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-background border-t-transparent" />
+                        Adding to Waitlist...
+                      </>
+                    ) : (
+                      <>
+                        <Bell className="mr-2 h-5 w-5" />
+                        Join Waitlist
+                      </>
+                    )}
+                  </Button>
+                </form>
+
+                <p className="text-xs text-muted-foreground text-center mt-4">
+                  We'll only send you updates about Chatsy. No spam, ever.
+                </p>
+              </>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 rounded-full bg-green-500/20 mx-auto mb-4 flex items-center justify-center">
+                  <Sparkles className="h-8 w-8 text-green-400" />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">You're on the list!</h3>
+                <p className="text-muted-foreground">
+                  Thanks for joining! We'll notify you as soon as Chatsy is ready.
+                </p>
+              </div>
+            )}
+          </Card>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border/20">
