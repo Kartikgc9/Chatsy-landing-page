@@ -25,6 +25,13 @@ export default function Home() {
 
     setIsLoading(true)
     try {
+      // Check if Supabase is available
+      if (!supabase) {
+        console.warn('Supabase not available')
+        alert('Service temporarily unavailable. Please try again later.')
+        return
+      }
+
       const { error } = await supabase
         .from('waitlist')
         .insert([
