@@ -7,13 +7,17 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Bell, Smartphone, Zap, MessageSquare, Sparkles, X, Mail } from "lucide-react"
 import { useState } from "react"
-import { supabase } from "@/lib/supabase"
+import { getApiClient } from "@/lib/api-client"
 
 export default function Home() {
   const [showWaitlistModal, setShowWaitlistModal] = useState(false)
   const [email, setEmail] = useState("")
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  
+  // Check if API client is available
+  const apiClient = getApiClient()
+  const isApiAvailable = apiClient !== null
 
   const handleJoinDiscord = () => {
     window.open('https://discord.gg/KRrNBHWc', '_blank')
@@ -21,18 +25,11 @@ export default function Home() {
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !apiClient) return
 
     setIsLoading(true)
     try {
-      // Check if Supabase is available
-      if (!supabase) {
-        console.warn('Supabase not available')
-        alert('Service temporarily unavailable. Please try again later.')
-        return
-      }
-
-      const { error } = await supabase
+      const { error } = await apiClient
         .from('waitlist')
         .insert([
           {
@@ -124,15 +121,27 @@ export default function Home() {
               <MessageSquare className="mr-2 h-5 w-5" />
               Join Discord Community
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
-              onClick={() => setShowWaitlistModal(true)}
-            >
-              <Bell className="mr-2 h-5 w-5" />
-              Join Waitlist
-            </Button>
+            {isApiAvailable ? (
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
+                onClick={() => setShowWaitlistModal(true)}
+              >
+                <Bell className="mr-2 h-5 w-5" />
+                Join Waitlist
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-lg px-8 py-6 border-border/60 text-muted-foreground cursor-not-allowed opacity-50"
+                disabled
+              >
+                <Bell className="mr-2 h-5 w-5" />
+                Waitlist Coming Soon
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -217,24 +226,34 @@ export default function Home() {
                 <MessageSquare className="mr-2 h-5 w-5" />
                 Join Discord Community
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
-                onClick={() => setShowWaitlistModal(true)}
-              >
-                <Bell className="mr-2 h-5 w-5" />
-                Join Waitlist
-              </Button>
+              {isApiAvailable ? (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6 border-border/60 text-foreground hover:bg-background/20 bg-transparent"
+                  onClick={() => setShowWaitlistModal(true)}
+                >
+                  <Bell className="mr-2 h-5 w-5" />
+                  Join Waitlist
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="text-lg px-8 py-6 border-border/60 text-muted-foreground cursor-not-allowed opacity-50"
+                  disabled
+                >
+                  <Bell className="mr-2 h-5 w-5" />
+                  Waitlist Coming Soon
+                </Button>
+              )}
             </div>
           </Card>
         </div>
       </section>
 
-
-
       {/* Waitlist Modal */}
-      {showWaitlistModal && (
+      {showWaitlistModal && isApiAvailable && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowWaitlistModal(false)} />
