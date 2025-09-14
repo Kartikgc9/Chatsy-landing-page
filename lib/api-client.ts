@@ -1,5 +1,7 @@
 // API client to replace Supabase functionality
+// Supports both custom backend and Netlify Functions
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const USE_NETLIFY_FUNCTIONS = process.env.NEXT_PUBLIC_USE_NETLIFY_FUNCTIONS === 'true';
 
 interface RequestOptions {
   method?: string;
@@ -53,7 +55,11 @@ class ApiClient {
 
   // Add email to waitlist
   async addToWaitlist(email: string): Promise<ApiResponse<WaitlistData>> {
-    return this.request<WaitlistData>('/api/waitlist', {
+    const endpoint = USE_NETLIFY_FUNCTIONS 
+      ? '/.netlify/functions/waitlist' 
+      : '/api/waitlist';
+    
+    return this.request<WaitlistData>(endpoint, {
       method: 'POST',
       body: JSON.stringify({ email }),
     });
@@ -61,7 +67,11 @@ class ApiClient {
 
   // Get waitlist stats
   async getWaitlistStats(): Promise<ApiResponse<{ count: number }>> {
-    return this.request<{ count: number }>('/api/waitlist/stats');
+    const endpoint = USE_NETLIFY_FUNCTIONS 
+      ? '/.netlify/functions/waitlist' 
+      : '/api/waitlist/stats';
+    
+    return this.request<{ count: number }>(endpoint);
   }
 
   // Health check

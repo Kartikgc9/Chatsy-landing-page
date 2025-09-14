@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "netlify:dev": "netlify dev"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
